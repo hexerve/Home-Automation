@@ -1,0 +1,44 @@
+--   # connected        #blue
+0000 # saving           #green
+-0-  # not connected    # red
+0    # connecting       #white
+-  # disconnecting      #blue(mid)
+
+
+14 - Blue
+12 - green
+13 - (Blue -midpos)
+15 - white
+3 - red
+
+
+
+
+
+from lib.umqtt import MQTTClient
+
+client = MQTTClient("device_id", "io.adafruit.com",user="JDchauhan", passwor)
+client.connect()
+client.publish(topic="JDchauhan/feeds/lights", msg="OFF")
+
+
+client.subscribe(topic="JDchauhan/feeds/lights")
+client.check_msg()
+
+while True:
+     client.check_msg()
+     
+     if client.subscribe(topic="vickyho/feeds/digital",msg="ON")  
+          pycom.rgbled(0xff00)
+          print("Led ON")
+          time.sleep(3)
+
+     if client.subscribe(topic="vickyho/feeds/digital",msg="OFF")
+          pycom.heartbeat(False)  
+          pycom.rgbled(0x0000)
+          print("Led OFF")
+          time.sleep(3)
+
+
+
+mosquitto_pub -h 178.128.148.223 -t test -m "hello again" -p 8883 --capath /etc/ssl/certs/ -u "Jagdish" -P "JDsingh"

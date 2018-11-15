@@ -1,0 +1,45 @@
+<script>
+                var http = new XMLHttpRequest();
+                function send(){
+                    var name = document.getElementById('name').value;
+                    var pass = document.getElementById('password').value;
+                    if(name && pass) {
+                        document.getElementById('err').innerHTML = ""
+
+                        params = JSON.stringify({SSID: name, pass: pass});
+                        
+                        //http.open('POST', '/test', true);
+                        //http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                        http.open('GET', '/login/' + name + '/' + pass, true);
+                        
+                        http.onreadystatechange = function() {//Call a function when the state changes.
+                            if(http.readyState == 4 && http.status == 200) {
+                                alert(http.responseText);
+                            }
+                        }
+                        //http.send(params);
+                        http.send();
+                    }else{
+                        document.getElementById('err').innerHTML = "Please fill all the credentials";
+                    }
+                }
+            </script>
+
+
+            <!DOCTYPE html>
+    <html>
+        <head> 
+            <title>Home Automation</title> 
+        </head>
+        <body> 
+            <h1>Home Automation</h1>
+            <div id="err" style="background: #FFA6A6">
+            </div>
+            <br/>
+            <form onsubmit='return false'>
+                <input type='text' id='name' placeholder='SSID/ wifi name'/>
+                <input type='password' id='password' placeholder='Password'/>
+                <input type='button' value='Submit' onclick='send()' />
+            </form>
+        </body>
+    </html>

@@ -23,16 +23,17 @@ $(function () {
                     $('#admin').show();
                 }
 
-                data.results.user.devices.forEach(device => {
-                    $('#deviceList').append(
-                        '<tr id="list_' + device.deviceId + '">' +
-                        '<td> <input type="text" id="device_' + device.deviceId + '" class="form-control" placeholder="name" value="' + device.name + '" ></input></td>' +
-                        '<td> <input type="button" class="form-control btn-light update" id="update_' + device.deviceId + '" class="text-light" value="Update"></input></td>' +
-                        '<td> <input type="button" class="form-control btn-light remove" id="remove_' + device.deviceId + '" class="text-light" value="Remove"></input></td>' +
-                        '</tr>'
-                    );
-                });
-
+                if (data.results.devices) {
+                    data.results.devices.forEach(device => {
+                        $('#deviceList').append(
+                            '<tr id="list_' + device.deviceId + '">' +
+                            '<td> <input type="text" id="device_' + device.deviceId + '" class="form-control" placeholder="name" value="' + device.name + '" ></input></td>' +
+                            '<td> <input type="button" class="form-control btn-light update" id="update_' + device.deviceId + '" class="text-light" value="Update"></input></td>' +
+                            '<td> <input type="button" class="form-control btn-light remove" id="remove_' + device.deviceId + '" class="text-light" value="Remove"></input></td>' +
+                            '</tr>'
+                        );
+                    });
+                }
 
                 showBody();
             }).fail(function (xhr, status, error) {
@@ -111,7 +112,7 @@ $(function () {
 
     $(document).on('click', '.remove', function (e) {
         let deviceId = $(e.currentTarget).attr('id').split('_')[1]
-        
+
         let data = {
             "deviceId": deviceId,
         };

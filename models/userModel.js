@@ -2,19 +2,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var Devices = new Schema({
-  deviceId: {
-    type: String
-  },
-  name: {
-    type: String,
-    default: "Device_" + Math.floor(Math.random() * 100000000)
-  },
-  value: {
-    type: Number
-  }
-});
-
 var UserSchema = new Schema({
   name: {
     type: String,
@@ -40,7 +27,6 @@ var UserSchema = new Schema({
     type: Number,
     required: [true, 'please enter your email']
   },
-  devices: [ Devices ],
   isVerifiedEmail: {
     type: Boolean,
     default: false

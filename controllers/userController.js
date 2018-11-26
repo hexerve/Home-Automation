@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var User = require('../models/userModel');
+var Device = require('../models/deviceModel');
 User = mongoose.model('user');
 
 var Verification = require('../models/verificationModel');
@@ -127,10 +128,18 @@ module.exports.current_user = function (req, res) {
     AuthoriseUser.getUser(req, res, function (user) {
         user.password = undefined;
         user.__v = undefined;
-        results = {
-            user: user
-        };
-        return responses.successMsg(res, results);
+        Device.find({
+            user: mongoose.Types.ObjectId(user._id)
+        }, function (err, device) {
+            if (err) {
+                return responses.errorMsg(res, 500, "Unexpected Error", "unexpected error.", null);
+            }
+            results = {
+                user: user,
+                devices: device
+            };
+            return responses.successMsg(res, results);
+        });
     });
 };
 
@@ -611,76 +620,63 @@ module.exports.updatePersonalInfo = function (req, res) {
 
 module.exports.addDevice = function (req, res) {
     AuthoriseUser.getUser(req, res, function (user) {
-        let newDevice = {
-            deviceId: req.body.deviceId,
-            value: 0
-        };
-        user.devices.forEach(device => {
-            if (device.deviceId === req.body.deviceId) {
-                newDevice = undefined
+        Device.find({
+            user: mongoose.Types.ObjectId(user._id),
+            deviceId: req.body.deviceId
+        }, function (err, result) {
+            if (err) {
+                console.log(err);
+                return responses.errorMsg(res, 500, "Unexpected Error", "unexpected error.", null);
             }
+
+            if (result.length) {
+                return responses.errorMsg(res, 409, "Conflict", "device already exists.", null);
+            }
+
+            Device.create({
+                user: mongoose.Types.ObjectId(user._id),
+                deviceId: req.body.deviceId,
+                values: {
+                    0: false,
+                    1: false,
+                    2: false,
+                    3: false,
+                    4: false
+                }
+            }, function (err, device) {
+                if (err) {
+                    if (err.name && err.name == "ValidationError") {
+                        errors = {
+                            "index": Object.keys(err.errors)
+                        };
+                        return responses.errorMsg(res, 400, "Bad Request", "validation failed.", errors);
+
+                    } else if (err.name && err.name == "CastError") {
+                        errors = {
+                            "index": err.path
+                        };
+                        return responses.errorMsg(res, 400, "Bad Request", "cast error.", errors);
+
+                    } else {
+                        console.log(err);
+                        return responses.errorMsg(res, 500, "Unexpected Error", "unexpected error.", null);
+                    }
+                }
+
+                return responses.successMsg(res, null);
+            })
         });
-
-        if (newDevice) {
-            User.findOneAndUpdate({
-                _id: user._id
-            }, {
-                    $push: {
-                        devices: newDevice
-                    }
-                }, function (err, user) {
-                    if (err) {
-                        if (err.name && err.name == "ValidationError") {
-                            errors = {
-                                "index": Object.keys(err.errors)
-                            };
-                            return responses.errorMsg(res, 400, "Bad Request", "validation failed.", errors);
-
-                        } else if (err.name && err.name == "CastError") {
-                            errors = {
-                                "index": err.path
-                            };
-                            return responses.errorMsg(res, 400, "Bad Request", "cast error.", errors);
-
-                        } else {
-                            console.log(err);
-                            return responses.errorMsg(res, 500, "Unexpected Error", "unexpected error.", null);
-                        }
-                    }
-
-                    if (!user) {
-                        return responses.errorMsg(res, 404, "Not Found", "user not found.", null);
-                    }
-
-                    return responses.successMsg(res, null);
-                });
-        } else {
-            return responses.successMsg(res, null);
-        }
     });
 };
 
 module.exports.updateDevice = function (req, res) {
     AuthoriseUser.getUser(req, res, function (user) {
-        let devices = user.devices;
-        let i = 0
-        for (; i < devices.length; i++) {
-            if (devices[i].deviceId === req.body.deviceId) {
-                break;
-            }
-        }
-
-        device = user.devices.splice(i, 1)[0];
-
-        device.name = req.body.deviceName;
-
-        devices.push(device);
-
-        User.findOneAndUpdate({
-            _id: user._id
+        Device.findOneAndUpdate({
+            user: mongoose.Types.ObjectId(user._id),
+            deviceId: req.body.deviceId
         }, {
                 $set: {
-                    devices: devices
+                    name: req.body.deviceName
                 }
             }, function (err, user) {
                 if (err) {
@@ -713,55 +709,35 @@ module.exports.updateDevice = function (req, res) {
 
 module.exports.removeDevice = function (req, res) {
     AuthoriseUser.getUser(req, res, function (user) {
-        let devices = user.devices;
-        let i = 0
-        for (; i < devices.length; i++) {
-            if (devices[i].deviceId === req.body.deviceId) {
-                break;
+        Device.findOneAndRemove({
+            user: mongoose.Types.ObjectId(user._id),
+            deviceId: req.body.deviceId
+        }, function (err, device) {
+            if (err) {
+                console.log(err);
+                return responses.errorMsg(res, 500, "Unexpected Error", "unexpected error.", null);
             }
-        }
 
-        user.devices.splice(i, 1);
+            if (!device) {
+                return responses.errorMsg(res, 404, "Not Found", "user not found", null);
+            }
 
-        User.findOneAndUpdate({
-            _id: user._id
-        }, {
-                $set: {
-                    devices: devices
-                }
-            }, function (err, user) {
-                if (err) {
-                    if (err.name && err.name == "ValidationError") {
-                        errors = {
-                            "index": Object.keys(err.errors)
-                        };
-                        return responses.errorMsg(res, 400, "Bad Request", "validation failed.", errors);
-
-                    } else if (err.name && err.name == "CastError") {
-                        errors = {
-                            "index": err.path
-                        };
-                        return responses.errorMsg(res, 400, "Bad Request", "cast error.", errors);
-
-                    } else {
-                        console.log(err);
-                        return responses.errorMsg(res, 500, "Unexpected Error", "unexpected error.", null);
-                    }
-                }
-
-                if (!user) {
-                    return responses.errorMsg(res, 404, "Not Found", "user not found.", null);
-                }
-
-                return responses.successMsg(res, null);
-            });
+            return responses.successMsg(res, null);
+        });
     });
 }
 
-module.exports.publish = function (deviceId, id, val){
-    User.find({
-        'devices.deviceId': deviceId
-    } ,function(err, res){
-        err ? console.log(err) : console.log(res)
+module.exports.publish = function (deviceId, id, val) {
+    let value = (val === 'ON') ? true : false;
+    deviceState = {};
+    deviceState['values.' + id] = value;
+    console.log(deviceState)
+
+    Device.updateMany({
+        deviceId: deviceId,      
+    },{
+        $set: deviceState
+    }, function(err, result){
+        err ? console.log(err) : console.log(result)
     })
 };

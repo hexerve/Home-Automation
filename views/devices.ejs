@@ -1,0 +1,56 @@
+<% include partials/header.ejs %>
+<script src="/js/devices.js"></script>
+</head>
+
+<body>
+    <%- include('partials/navbar', {
+            home: true,
+            login: false,
+            plan: true,
+            account: true
+        }); %>
+
+    <div id="loader" class="container row">
+        <img class="hexerve" src="/hexerve.png" />
+    </div>
+
+    <div class="body-container body-top-container container"  style="display:none">
+        <div class="container">
+            <div class="row pt-5 pb-2">
+                <div class="col-md-6">
+                    <h2 class="text-light">Add a Device</h2>
+                    <div id="err"></div>
+                    <form>
+                        <div class="input-group mb-3 input-group-lg container">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">SSID</span>
+                            </div>
+                            <input type="text" class="form-control" name="SSID" id="SSID" placeholder="Enter Wifi name">
+                        </div>
+                        <div class="input-group mb-3 input-group-lg container">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Password</span>
+                            </div>
+                            <input type="password" class="form-control" name="pass" id="pass" placeholder="password">
+                        </div>
+                        <div class="wrapper text-center">
+                            <div class="btn-group btn-group-lg">
+                                <button type="button" id="submit" class="btn wobble-vertical">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-6">
+                    <h2 class="text-light">My Devices</h2>
+                    <div><ul id="deviceList"></ul></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer fixed-bottom fill-content text-light">
+        <% include partials/footer.ejs %>
+
+</body>
+
+</html>

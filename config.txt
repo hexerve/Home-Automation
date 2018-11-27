@@ -1,0 +1,5 @@
+{"ssid": "JDsingh", "password": "qazxswed"}
+
+{
+    "id": "19083257235"
+}

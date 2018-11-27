@@ -5,33 +5,16 @@ import time
 import machine
 import ledSignals
 
+
 def initialize():
-    f = open("config.txt", "r")
-    data = json.loads(f.read())
-    f.close()
+    with open("config.json", "r") as jsonFile:
+        data = json.load(jsonFile)
     return data
 
+
 def configSetup():
-
-    htmlData = """<!DOCTYPE html>
-    <html>
-        <head> 
-            <title>Home Automation</title> 
-        </head>
-        <body> 
-            <h1>Home Automation</h1>
-            <div id="err" style="background: #FFA6A6">
-            </div>
-            <br/>
-            <form method="GET" action="\login">
-                <input type='text' id='name' name='ssid' placeholder='SSID/ wifi name'/>
-                <input type='password' id='password' name='password' placeholder='Password'/>
-                <input type='submit' value='Submit' />
-            </form>
-        </body>
-    </html>
-    """
-
+    p2 = machine.Pin(2, machine.Pin.OUT)
+    p2.high()
     addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
 
     s = socket.socket()
@@ -43,42 +26,77 @@ def configSetup():
     while True:
         cl, addr = s.accept()
         data = cl.recv(4096)
-        
+        response = 'here'
         if data:
-            method, path, protocol = data.decode().strip().split('\n')[0].split(' ')
-            
-            if method == 'GET':
-                if path == '/':
-                    response = htmlData
-                elif path.split('?')[0] == '/login':
-                    d1, d2 = path.split('?')[1].split('&')
-                    if d1 and d2:
-                        ssid = d1.split('=')[1]
-                        password = d2.split('=')[1]
-                        response = 'success';
-                        cl.send(response.encode('utf-8'))
-                        cl.shutdown(socket.SHUT_RDWR)
-                        cl.close()
-                        break;
-                else:
-                    response = 'error'
-            else: 
-                response = 'err'
-            
+            method, path, protocol = data.decode().strip().split('\n')[
+                0].split(' ')
+
+            if method == 'POST':
+                print('Post')
+                x = data.decode()
+
+                while not x[len(data) - 1:] == '}':
+                    data += cl.recv(4096)
+                    x = data.decode()
+                x = None
+                
+                data = data.decode().strip().split('\n')
+                data = data[len(data) - 1]
+                data = json.loads(data)
+
+                ssid = data['ssid']
+                password = data['password']
+
+                with open("config.json", "r") as jsonFile:
+                    data = json.load(jsonFile)
+
+                response = "\r\n"
+                response += data["id"]
+
+                cl.send('HTTP/1.0 200 OK\r\n')
+                cl.send('Cache-Control: no-cache\r\n')
+                cl.send('Access-Control-Allow-Origin: *\r\n')
+                cl.send('Access-Control-Allow-Methods: GET, POST, PUT, DELETE\r\n')
+                cl.send('Access-Control-Allow-Headers: X-Requested-With,content-type, Authorization\r\n')
+                cl.send('Access-Control-Allow-Credentials: true\r\n')
+                cl.send(response.encode('utf-8'))
+
+                # cl.shutdown(socket.SHUT_RDWR)
+                cl.close()
+                testCredentials(ssid, password)
+                p2.low()
+                break
+
+        cl.send('HTTP/1.0 200 OK\r\n')
+        cl.send('Cache-Control: no-cache\r\n')
+        cl.send('Access-Control-Allow-Origin: *\r\n')
+        cl.send('Access-Control-Allow-Methods: GET, POST, PUT, DELETE\r\n')
+        cl.send(
+            'Access-Control-Allow-Headers: X-Requested-With,content-type, Authorization\r\n')
+        cl.send('Access-Control-Allow-Credentials: true\r\n')
+
         cl.send(response.encode('utf-8'))
         cl.close()
-    
-    testCredentials(ssid, password)
 
-def saveCredentials(ssid, password): 
-    f = open('config.txt', "w")
-    f.write('{"ssid": "' + ssid + '", "password": "' + password + '"}')
+
+def saveCredentials(ssid, password):
+    with open("config.json", "r") as jsonFile:
+        data = json.load(jsonFile)
+    
+    data["ssid"] = ssid
+    data["password"] = password
+    
+    data = json.dumps(data)
+
+    print(data)
+    f = open('config.json', "w")
+    f.write(data)
     f.close()
 
+    print("saved") 
 
 def testCredentials(ssid, password):
     networkDisconnect()
-
     isConnected = False
     for _ in range(3):
         networkConnect(ssid, password)
@@ -86,32 +104,23 @@ def testCredentials(ssid, password):
             isConnected = True
             break
 
-    if isConnected: 
-        # ledSignals.dot()
-        # ledSignals.dot()
-        # ledSignals.dot()
-        # ledSignals.dot()
-        
-        ledSignals.green()
-
+    if isConnected:
+        ledSignals.save()
         print("Saving Credentials")
         saveCredentials(ssid, password)
 
     else:
-        # ledSignals.dash()
-        # ledSignals.dot()
-        # ledSignals.dash()
+        ledSignals.disconnected()
 
-        ledSignals.red()
-    
+    print("reset")
+    machine.reset()
+
 
 def isNetwork():
     wlan = network.WLAN(network.STA_IF)
     if wlan.isconnected():
-        print("connected") 
-        ledSignals.blue()
-        # ledSignals.dash()
-        # ledSignals.dash()
+        print("connected")
+        ledSignals.connected()        
         print('network config:', wlan.ifconfig())
         return True
     else:
@@ -126,28 +135,23 @@ def networkConnect(ssid, password):
         print('connecting to network...')
         print(ssid, password)
         wlan.connect(ssid, password)
-        # ledSignals.dot()
-        ledSignals.white()
+        ledSignals.connecting()
         time.sleep(5)
-    else: 
+    else:
         print("already connected")
-        ledSignals.green()
+        ledSignals.save()
 
 
 def networkDisconnect():
     wlan = network.WLAN(network.STA_IF)
     wlan.active(False)
-    # ledSignals.dash()
-    ledSignals.blueMid()
+    ledSignals.disconnecting()
     print('disconnected from network...')
 
 
 def isSetupInitiated():
-    p = machine.Pin(4, machine.Pin.IN)
-    print("pin"p.value())
+    p = machine.Pin(1, machine.Pin.IN)
+    print("pin", p.value())
     if not p.value():
-        time.sleep(2)
-        if not p.value():
-            return True
-        return False
+        return True
     return False

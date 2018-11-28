@@ -20,8 +20,15 @@ p4.low()
 def sub_cb(topic, msg):
     topic = topic.decode("utf-8")
     msg = msg.decode("utf-8")
-    device = (int)(topic.split('/')[1])
-    homeAutomation.operate(device, msg)
+    device = topic.split('/')[1]
+
+    if (device == 'all'):
+        homeAutomation.operateAll(msg)
+    
+    else:
+        device = (int) (device)
+        homeAutomation.operate(device, msg)
+    
     client.check_msg()
 
 client = MQTTClient(client_id="esp8266", server="iot.hexerve.com",

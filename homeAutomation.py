@@ -16,7 +16,29 @@ with open("automation.json", "r") as jsonFile:
             pins[i].low()
         else:
             pins[i].high()
-        
+
+
+def operateAll(msg):
+    data = {}
+
+    if(msg == 'ON'):
+        for i in range (0,5):    
+            data[str(i)] = 1
+            pins[i].high()
+    else:
+        for i in range (0,5):    
+            data[str(i)] = 0
+            pins[i].low()
+
+    data = json.dumps(data)
+
+    print(data)
+    f = open('automation.json', "w")
+    f.write(data)
+    f.close()
+
+    print("all", msg)
+
 
 def operate(num, msg):
     with open("automation.json", "r") as jsonFile:

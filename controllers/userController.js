@@ -61,7 +61,7 @@ module.exports.register = function (req, res) {
                         return responses.errorMsg(res, 500, "Unexpected Error", "unexpected error.", null);
                     } else {
 
-                        var link = 'https://screenshot.hexerve.com/verify/email/' + token;
+                        var link = 'https://iot.hexerve.com/verify/email/' + token;
 
                         Mail.verification_mail(req.body.email, link);
 
@@ -401,7 +401,7 @@ module.exports.forgetPassword = function (req, res) {
                                 }
                                 user.password = undefined;
 
-                                var link = 'https://screenshot.hexerve.com/verify/email/' + token;
+                                var link = 'https://iot.hexerve.com/verify/email/' + token;
 
                                 Mail.forgetPass_mail(req.body.email, link);
 
@@ -411,7 +411,7 @@ module.exports.forgetPassword = function (req, res) {
                     } else {
                         user.password = undefined;
 
-                        var link = 'https://screenshot.hexerve.com/verify/email/' + token;
+                        var link = 'https://iot.hexerve.com/verify/email/' + token;
 
                         Mail.forgetPass_mail(req.body.email, link);
 
@@ -457,7 +457,7 @@ module.exports.sendVerificationLink = function (req, res) {
                     } else {
                         user.password = undefined;
 
-                        var link = 'https://screenshot.hexerve.com/verify/email/' + token;
+                        var link = 'https://iot.hexerve.com/verify/email/' + token;
 
                         Mail.verification_mail(req.body.email, link);
                         return responses.successMsg(res, null);
@@ -731,6 +731,25 @@ module.exports.publish = function (deviceId, id, val) {
     let value = (val === 'ON') ? true : false;
     deviceState = {};
     deviceState['values.' + id] = value;
+    console.log(deviceState)
+
+    Device.updateMany({
+        deviceId: deviceId,      
+    },{
+        $set: deviceState
+    }, function(err, result){
+        err ? console.log(err) : console.log(result)
+    })
+};
+
+module.exports.publishAll = function (deviceId, val) {
+    let value = (val === 'ON') ? true : false;
+    
+    deviceState = {};
+    for ( let i = 0; i < 5; i++){
+        deviceState['values.' + i] = value;
+    }
+
     console.log(deviceState)
 
     Device.updateMany({

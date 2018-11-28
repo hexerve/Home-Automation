@@ -27,6 +27,10 @@ module.exports.operate = function (req, res) {
     deviceId = req.body.deviceId;
     val = req.body.val;
     client.publish(topic = deviceId + "/" + id, msg = val)
-    user.publish(deviceId, id, val)
+    if(id === 'all') {
+        user.publishAll(deviceId, val)
+    } else {
+        user.publish(deviceId, id, val)
+    }
     return responses.successMsg(res, null);
 };

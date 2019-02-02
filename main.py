@@ -31,8 +31,8 @@ def sub_cb(topic, msg):
     
     client.check_msg()
 
-client = MQTTClient(client_id="esp8266", server="iot.hexerve.com",
-                    port=8883, user="JDsingh", password="JDsingh")
+client = MQTTClient(client_id="esp8266", server="iot.atibha.in",
+                    port=8083, user="JDsingh", password="JDsingh")
 
 client.set_callback(sub_cb)
 

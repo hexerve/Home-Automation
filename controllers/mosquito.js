@@ -3,8 +3,8 @@ var responses = require('../helper/responses');
 var user = require('../controllers/userController');
 
 var options = {
-    port: 8883,
-    host: 'mqtt://iot.hexerve.com',
+    port: 8083,
+    host: 'mqtt://iot.atibha.com',
     clientId: 'mqttjs_' + Math.random().toString(16).substr(2, 8),
     username: 'JDsingh',
     password: 'JDsingh',
@@ -16,7 +16,7 @@ var options = {
     encoding: 'utf8'
 };
 
-var client = mqtt.connect('mqtt://iot.hexerve.com', options);
+var client = mqtt.connect('mqtt://iot.atibha.com', options);
 client.on('connect', function () { // When connected
     console.log('connected');
 });

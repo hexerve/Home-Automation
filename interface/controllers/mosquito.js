@@ -3,11 +3,11 @@ var responses = require('../helper/responses');
 var user = require('../controllers/userController');
 
 var options = {
-    port: 8083,
-    host: 'mqtt://iot.atibha.com',
+    port: 8883,
+    host: 'mqtt://atibha.in',
     clientId: 'mqttjs_' + Math.random().toString(16).substr(2, 8),
-    username: 'JDsingh',
-    password: 'JDsingh',
+    username: 'Hexerve',
+    password: 'Hexerve',
     keepalive: 60,
     reconnectPeriod: 1000,
     protocolId: 'MQIsdp',
@@ -16,7 +16,7 @@ var options = {
     encoding: 'utf8'
 };
 
-var client = mqtt.connect('mqtt://iot.atibha.com', options);
+var client = mqtt.connect('mqtt://atibha.in', options);
 client.on('connect', function () { // When connected
     console.log('connected');
 });

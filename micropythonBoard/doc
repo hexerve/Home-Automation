@@ -44,7 +44,7 @@ while True:
 mosquitto_pub -h 178.128.148.223 -t test -m "hello again" -p 8883 --capath /etc/ssl/certs/ -u "Jagdish" -P "JDsingh"
 
 
-# client = MQTTClient(client_id = "esp8266", server = "iot.hexerve.com", port = 8083, user = "JDsingh", password = "JDsingh", ssl= True,ssl_params={"cert_reqs":ssl.CERT_REQUIRED, "ca_certs":"/cert/ca.pem"}) 
+# client = MQTTClient(client_id = "esp8266", server = "atibha.in", port = 8083, user = "JDsingh", password = "JDsingh", ssl= True,ssl_params={"cert_reqs":ssl.CERT_REQUIRED, "ca_certs":"/cert/ca.pem"}) 
 # client = MQTTClient("device_id", "io.adafruit.com",user="JDchauhan", password="d676d8ed600b44a58d737f732cfd7440")
 # client = MQTTClient("device_id", "iot.hexerve.com",user="JDsingh", password="JDsingh")
 # client = MQTTClient(client_id = "esp8266", server = "iot.hexerve.com", port = 8083, user = b"JDsingh", password = b"JDsingh")

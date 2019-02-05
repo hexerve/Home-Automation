@@ -61,7 +61,7 @@ module.exports.register = function (req, res) {
                         return responses.errorMsg(res, 500, "Unexpected Error", "unexpected error.", null);
                     } else {
 
-                        var link = 'https://iot.hexerve.com/verify/email/' + token;
+                        var link = 'https://atibha.in/verify/email/' + token;
 
                         Mail.verification_mail(req.body.email, link);
 
@@ -401,7 +401,7 @@ module.exports.forgetPassword = function (req, res) {
                                 }
                                 user.password = undefined;
 
-                                var link = 'https://iot.hexerve.com/verify/email/' + token;
+                                var link = 'https://atibha.in/verify/email/' + token;
 
                                 Mail.forgetPass_mail(req.body.email, link);
 
@@ -411,7 +411,7 @@ module.exports.forgetPassword = function (req, res) {
                     } else {
                         user.password = undefined;
 
-                        var link = 'https://iot.hexerve.com/verify/email/' + token;
+                        var link = 'https://atibha.in/verify/email/' + token;
 
                         Mail.forgetPass_mail(req.body.email, link);
 
@@ -457,7 +457,7 @@ module.exports.sendVerificationLink = function (req, res) {
                     } else {
                         user.password = undefined;
 
-                        var link = 'https://iot.hexerve.com/verify/email/' + token;
+                        var link = 'https://atibha.in/verify/email/' + token;
 
                         Mail.verification_mail(req.body.email, link);
                         return responses.successMsg(res, null);
